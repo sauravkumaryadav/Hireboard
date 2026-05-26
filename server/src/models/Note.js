@@ -1,6 +1,5 @@
 // Note Model - Mongoose schema for application notes & status change logs
 // Fields: application (ref), user (ref), content, type (note/status_change), createdAt
-import { application } from "express";
 import mongoose from "mongoose";
 
 const Schema = mongoose.Schema;
@@ -8,13 +7,13 @@ const Schema = mongoose.Schema;
 const noteSchema = new Schema({
     //which application this note belongs to
     application: {
-        type: mongoose.Schema.Types.ObjectId,
+        type: Schema.Types.ObjectId,
         ref: "Application",
         required: true
     },
     // 👤 Who created the note
     user: {
-        type: mongoose.Schema.Types.ObjectId,
+        type: Schema.Types.ObjectId,
         ref: "User",
         required: true
     },
@@ -41,7 +40,8 @@ const Note = mongoose.model("Note", noteSchema);
 export default Note;
 
 /*
-user table {
+user table 
+{
   "_id": "u1",
   "name": "Saurav"
 }
