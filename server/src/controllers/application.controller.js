@@ -2,6 +2,7 @@
 // TODO: Implement create, getAll, getById, update, remove, updateStatus, reorder
 // TODO: Implement uploadResume, downloadResume, deleteResume
 import Application from "../models/Application.js";
+import Note from "../models/Note.js"
 
 // Create a new application
 export const createApplication = async (req, res) => {
@@ -90,22 +91,74 @@ export const updateApplication = async (req, res) => {  //Update this applicatio
 
 export const updateApplicationStatusWise = async (req, res) => {
   try {
+
     const appId = req.params.id;
     const { status } = req.body;
-    const allowedStatuses = ['wishlist', 'applied', 'phone_screen', 'interview', 'offer', 'rejected']
+
+    // Allowed statuses
+    const allowedStatuses = [
+      'wishlist',
+      'applied',
+      'phone_screen',
+      'interview',
+      'offer',
+      'rejected'
+    ];
+
+    // Validate status
     if (!allowedStatuses.includes(status)) {
-      return res.status(400).json({ success: false, message: 'invalid status value' })
+      return res.status(400).json({
+        success: false,
+        message: 'Invalid status value'
+      });
     }
-    const updatedApp = await Application.findOneAndUpdate({ _id: appId, user: req.user._id }, { status }, { new: true, runValidators: true })
-    if (!updatedApp) {
-      return res.status(404).json({ success: false, message: 'Application not found' })
+
+    // Find existing application first
+    const existingApplication = await Application.findOne({
+      _id: appId,
+      user: req.user._id
+    });
+
+    // Application not found
+    if (!existingApplication) {
+      return res.status(404).json({
+        success: false,
+        message: 'Application not found'
+      });
     }
-    res.status(200).json({ success: true, data: updatedApp, message: "Status updated successfully" });
+
+    // Save old status before update
+    const oldStatus = existingApplication.status;
+
+    // Update status
+    existingApplication.status = status;
+
+    await existingApplication.save();
+
+    // Create status change note
+    await Note.create({
+      application: appId,
+      user: req.user._id,
+      type: "status_change",
+      content: `Status changed from ${oldStatus} to ${status}`
+    });
+
+    // Success response
+    res.status(200).json({
+      success: true,
+      data: existingApplication,
+      message: "Status updated successfully"
+    });
+
+  } catch (error) {
+
+    res.status(400).json({
+      success: false,
+      message: error.message
+    });
+
   }
-  catch (error) {
-    res.status(400).json({ success: false, message: error.message });
-  }
-}
+};
 
 export const deleteApplication = async (req, res) => {
   try {
