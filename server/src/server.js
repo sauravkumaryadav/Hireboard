@@ -7,6 +7,7 @@ import morgan from 'morgan';
 
 import applicationRoutes from './routes/application.routes.js';
 import authRoutes from './routes/auth.routes.js';
+import noteRoutes from './routes/note.routes.js'
 
 dotenv.config();
 
@@ -38,6 +39,8 @@ app.use('/api/auth', authRoutes);           // ← All auth routes (signup, logi
 
 // Application Routes (Protected later)
 app.use('/api/applications', applicationRoutes);   // ← All job application routes
+// Note Routes (Protected later)
+app.use('/api/applications/:id/notes', noteRoutes);   // ← All job application routes
 
 // ====================== 404 Handler ======================
 app.use('*', (req, res) => {
