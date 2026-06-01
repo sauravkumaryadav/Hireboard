@@ -45,7 +45,6 @@ export const signup = async (req, res) => {
     }
 }
 
-
 export const login = async (req, res) => {
     try {
         const { email, password } = req.body;
@@ -91,7 +90,6 @@ export const login = async (req, res) => {
     }
 }
 
-
 export const getMe = async(req, res) => {
     try {
         res.status(200).json({
@@ -108,21 +106,16 @@ export const getMe = async(req, res) => {
     }
 }
 
-export const updateProfile = async(req, res) => {
+export const updateProfile = async (req, res) => {
     try {
 
         const { name, email } = req.body;
 
-        const updatedUser = await User.findByIdAndUpdate(req.user._id,
+        const updatedUser = await User.findOneAndUpdate(
+            { _id: req.user._id },
             { name, email },
             { new: true, runValidators: true }
         );
-
-//         const updatedUser = await User.findOneAndUpdate(
-//   { _id: req.user._id },   // filter
-//   { name, email },         // update
-//   { new: true, runValidators: true }
-// );
 
 
         res.status(200).json({
@@ -134,7 +127,7 @@ export const updateProfile = async(req, res) => {
     catch (error) {
         res.status(500).json({ success: false, message: 'server error', error: error.message })
     }
-  
+
 }
 
 export const changePassword = async (req, res) => {

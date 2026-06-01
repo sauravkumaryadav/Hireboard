@@ -30,9 +30,9 @@ const userSchema = new Schema({
 }, {
     timestamps: true
 })
-
+//This runs before saving a user.
 userSchema.pre("save", async function(next) {
-    if(!this.isModified("password")) return next();
+    if(!this.isModified("password")) return next(); //This prevents hashing again when user updates name/email.
 
     try{
         const salt = await bcrypt.genSalt(12);
@@ -51,3 +51,12 @@ userSchema.methods.comparePassword = async function(candidatePassword){
 
 const User = mongoose.model('User', userSchema);
 export default User;
+
+/*example json {
+  "_id": "user123",
+  "name": "Saurav",
+  "email": "saurav@gmail.com",
+  "password": "$2a$12$hashedPassword...",
+  "createdAt": "...",
+  "updatedAt": "..."
+}*/
