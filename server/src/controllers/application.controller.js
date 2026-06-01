@@ -3,6 +3,7 @@
 // TODO: Implement uploadResume, downloadResume, deleteResume
 import Application from "../models/Application.js";
 import Note from "../models/Note.js"
+import fs from "fs";
 
 // Create a new application
 export const createApplication = async (req, res) => {
@@ -185,5 +186,153 @@ export const deleteApplication = async (req, res) => {
       success: false,
       message: error.message,
     });
+  }
+};
+
+export const uploadResume = async (req, res) => {
+  try {
+
+    // 1. Get application ID
+    const appId = req.params.id;
+
+    // 2. Verify application belongs to logged-in user
+    const application = await Application.findOne({
+      _id: appId,
+      user: req.user._id
+    });
+
+    // 3. Application not found
+    if (!application) {
+      return res.status(404).json({
+        success: false,
+        message: "Application not found"
+      });
+    }
+
+    // 4. Check if file uploaded
+    if (!req.file) {
+      return res.status(400).json({
+        success: false,
+        message: "No file uploaded"
+      });
+    }
+
+    // 5. Save file path in database
+    application.resumePath = req.file.path;
+
+    // 6. Save updated application
+    await application.save();
+
+    // 7. Success response
+    res.status(200).json({
+      success: true,
+      message: "Resume uploaded successfully",
+      data: {
+        resumePath: application.resumePath
+      }
+    });
+
+  } catch (error) {
+
+    res.status(500).json({
+      success: false,
+      message: error.message
+    });
+
+  }
+};
+
+
+export const downloadResume = async (req, res) => {
+  try {
+
+    // 1. Get application ID
+    const appId = req.params.id;
+
+    // 2. Find application belonging to logged-in user
+    const application = await Application.findOne({
+      _id: appId,
+      user: req.user._id
+    });
+
+    // 3. Application not found
+    if (!application) {
+      return res.status(404).json({
+        success: false,
+        message: "Application not found"
+      });
+    }
+
+    // 4. Resume not uploaded
+    if (!application.resumePath) {
+      return res.status(404).json({
+        success: false,
+        message: "Resume not found"
+      });
+    }
+
+    // 5. Download file
+    res.download(application.resumePath);
+
+  } catch (error) {
+
+    res.status(500).json({
+      success: false,
+      message: error.message
+    });
+
+  }
+};
+
+export const deleteResume = async (req, res) => {
+  try {
+
+    // 1. Get application ID
+    const appId = req.params.id;
+
+    // 2. Find application
+    const application = await Application.findOne({
+      _id: appId,
+      user: req.user._id
+    });
+
+    // 3. Application not found
+    if (!application) {
+      return res.status(404).json({
+        success: false,
+        message: "Application not found"
+      });
+    }
+
+    // 4. Resume not found
+    if (!application.resumePath) {
+      return res.status(404).json({
+        success: false,
+        message: "Resume not found"
+      });
+    }
+
+    // 5. Delete physical file from disk
+    fs.unlinkSync(application.resumePath);
+
+    // 6. Clear DB field
+    application.resumePath = null;
+
+    // 7. Save application
+    await application.save();
+
+    // 8. Success response
+    res.status(200).json({
+      success: true,
+      message: "Resume deleted successfully"
+    });
+
+  } catch (error) {
+
+    res.status(500).json({
+      success: false,
+      message: error.message
+    });
+
   }
 };
