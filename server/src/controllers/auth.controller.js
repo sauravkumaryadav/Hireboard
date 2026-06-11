@@ -29,6 +29,7 @@ export const signup = async (req, res) => {
 
         // send response
         res.status(201).json({
+            success:true,
             message: "User registered successfully",
             token,
             user: {
@@ -52,7 +53,7 @@ export const login = async (req, res) => {
         const user = await User.findOne({ email }).select("+password");
 
         if (!user) {
-            res.status(400).json({
+            return res.status(400).json({
                 message: "Invalid email or password",
                 success: false
             })
@@ -62,7 +63,7 @@ export const login = async (req, res) => {
         const isMatch = await user.comparePassword(password);
 
         if (!isMatch) {
-            res.status(400).json({
+            return res.status(400).json({
                 success: false,
                 message: "Incorrect Password"
             })
