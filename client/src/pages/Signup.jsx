@@ -483,3 +483,13 @@ export default function Signup() {
     </Container>
   );
 }
+
+// Signup.jsx (this file)      ← user types, clicks, sees toasts/errors
+//       │  calls signup() from...
+// AuthContext.jsx              ← manages user/token state app-wide
+//       │  calls signup() from...
+// auth.service.js              ← knows the URL: POST /auth/signup
+//       │  calls api.post() from...
+// api.js                       ← attaches headers, handles global 401s
+//       │
+// Backend (Express)            ← the real work: hash password, save to DB, sign JWT

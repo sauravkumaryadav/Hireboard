@@ -135,3 +135,5 @@ export const AuthProvider = ({ children }) => {
 export const useAuth = () => {
     return useContext(AuthContext);
 };
+
+//global shared storage - any component can use from here no need to do prop drilling  it centralized user statte, loader and login/out functions

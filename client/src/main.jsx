@@ -36,7 +36,7 @@ ReactDOM.createRoot(
 
 // QueryClientProvider - provides React Query caching and API state globally
 
-// BrowserRouter - handles all route navigation
+// BrowserRouter - handles all route navigation or route manager for entire app
 
 // AuthProvider - provides user, login, signup, logout, loading globally
 
