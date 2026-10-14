@@ -16,8 +16,8 @@ import upload from '../middleware/upload.middleware.js';
 
 const router = express.Router();
 
-router.post('/', protect, createApplication);
-router.get('/', protect, getApplications);
+router.post('/create', protect, createApplication);
+router.get('/listing', protect, getApplications);
 
 router.patch('/:id/status', protect, updateApplicationStatusWise);
 
