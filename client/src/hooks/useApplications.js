@@ -17,6 +17,12 @@ const KEYS = {
   detail: (id) => ['applications', id],
 };
 
+// Dashboard stats/charts are derived from applications data, but they live
+// under a separate query key (see useDashboard.js) — any mutation here that
+// changes counts/status must invalidate this too, or the dashboard goes stale
+// until a full page reload wipes the whole cache.
+const DASHBOARD_KEY = ['dashboard'];
+
 // ─── Queries ──────────────────────────────────────────────────
 export const useApplications = () =>
   useQuery({ queryKey: KEYS.all, queryFn: getApplications });
@@ -29,7 +35,10 @@ export const useCreateApplication = () => {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: (data) => createApplication(data),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: KEYS.all }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: KEYS.all });
+      queryClient.invalidateQueries({ queryKey: DASHBOARD_KEY });
+    },
   });
 };
 
@@ -40,6 +49,7 @@ export const useUpdateApplication = () => {
     onSuccess: (_, { id }) => {
       queryClient.invalidateQueries({ queryKey: KEYS.all });
       queryClient.invalidateQueries({ queryKey: KEYS.detail(id) });
+      queryClient.invalidateQueries({ queryKey: DASHBOARD_KEY });
     },
   });
 };
@@ -48,7 +58,10 @@ export const useDeleteApplication = () => {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: (id) => deleteApplication(id),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: KEYS.all }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: KEYS.all });
+      queryClient.invalidateQueries({ queryKey: DASHBOARD_KEY });
+    },
   });
 };
 
@@ -59,6 +72,7 @@ export const useUpdateApplicationStatus = () => {
     onSuccess: (_, { id }) => {
       queryClient.invalidateQueries({ queryKey: KEYS.all });
       queryClient.invalidateQueries({ queryKey: KEYS.detail(id) });
+      queryClient.invalidateQueries({ queryKey: DASHBOARD_KEY });
     },
   });
 };
