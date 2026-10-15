@@ -10,6 +10,7 @@ import {
     useEffect,
     useState
 } from 'react';
+import { useQueryClient } from '@tanstack/react-query';
 
 import * as authService from '../services/auth.service';
 
@@ -20,6 +21,8 @@ const AuthContext = createContext();
 
 // 2. Create Provider Component
 export const AuthProvider = ({ children }) => {
+
+    const queryClient = useQueryClient();
 
     // 3. State
     const [user, setUser] = useState(null);
@@ -78,6 +81,10 @@ export const AuthProvider = ({ children }) => {
             data.token
         );
 
+        // Wipe any cached data from whoever was logged in before,
+        // so dashboard/applications queries refetch fresh for this user
+        queryClient.clear();
+
         // Save user in state
         setUser(data.user);
 
@@ -96,6 +103,9 @@ export const AuthProvider = ({ children }) => {
             data.token
         );
 
+        // Same reason as login() — start this new account with an empty cache
+        queryClient.clear();
+
         // Save user
         setUser(data.user);
 
@@ -107,6 +117,9 @@ export const AuthProvider = ({ children }) => {
     const logout = () => {
 
         localStorage.removeItem('token');
+
+        // Clear cached data so it isn't served to whoever logs in next
+        queryClient.clear();
 
         setUser(null);
     };
